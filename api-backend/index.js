@@ -6,6 +6,9 @@ const { body, validationResult } = require('express-validator');
 
 const app = express();
 
+const swaggerUi = require('swagger-ui-express');
+const specs = require('./swagger');   // or './swagger.js' depending on location
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -383,6 +386,18 @@ app.delete('/api/todos/:id', authMiddleware, (req, res) => {
       error: error.message
     });
   }
+});
+
+// SwaggerAPI stuff
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,                   
+  customCss: '.swagger-ui .topbar { background-color: #1a1a2e; }', 
+  customSiteTitle: 'Todo API Docs',
+}));
+
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(specs);
 });
 
 // 404 handler
