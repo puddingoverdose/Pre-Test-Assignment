@@ -15,7 +15,7 @@ const users = [];
 const todos = [];
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || '12345';
+const JWT_SECRET = process.env.JWT_SECRET || 'PFTsE+FsLeg03jgzsM7yQCZt1JuGMZPqZgpGk80tlOA=';
 const JWT_EXPIRE = '24h';
 
 
