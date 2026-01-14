@@ -1,0 +1,21 @@
+{
+  "name": "api-backend",
+  "version": "1.0.0",
+  "description": "API for Pre-test Assignment",
+  "main": "api/index.js",
+  "scripts": {
+    "dev": "node api/index.js",
+    "start": "node api/index.js"
+  },
+  "keywords": ["todo", "api", "jwt"],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-validator": "^7.0.1",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
+  }
+}
