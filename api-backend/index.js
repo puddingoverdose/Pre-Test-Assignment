@@ -10,7 +10,18 @@ const swaggerUi = require('swagger-ui-express');
 const specs = require('./swagger');   // or './swagger.js' depending on location
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://pre-test-assignment.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
 app.use(express.json());
 
 // In-memory storage
@@ -421,9 +432,10 @@ app.use((err, req, res, next) => {
 module.exports = app;
 
 // local development
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-  console.log(`   Also try: http://127.0.0.1:${PORT}`);
-});
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Server running on http://localhost:${PORT}`);
+    console.log(`   Also try: http://127.0.0.1:${PORT}`);
+  });
+}
