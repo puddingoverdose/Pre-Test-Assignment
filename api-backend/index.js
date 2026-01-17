@@ -1,3 +1,8 @@
+// Load environment variable
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -7,7 +12,23 @@ const { body, validationResult } = require('express-validator');
 const app = express();
 
 const swaggerUi = require('swagger-ui-express');
-const specs = require('./swagger');   // or './swagger.js' depending on location
+const specs = require('./swagger');
+
+// Environment Variable Validation
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRE = process.env.JWT_EXPIRE || '24h';
+const PORT = process.env.PORT || 3000;
+
+if (!JWT_SECRET) {
+  console.error('❌ FATAL ERROR: JWT_SECRET environment variable is not defined.');
+  console.error('   Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'base64\'))"');
+  console.error('   Then add it to your .env file or Vercel environment variables.');
+  process.exit(1);
+}
+
+console.log('✅ Environment variables loaded successfully');
+console.log(`   JWT expiration: ${JWT_EXPIRE}`);
+console.log(`   Server port: ${PORT}`);
 
 // Middleware
 app.use(cors({
@@ -21,19 +42,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-
 app.use(express.json());
 
-// In-memory storage
+// In-Memory 
 const users = [];
 const todos = [];
 
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'PFTsE+FsLeg03jgzsM7yQCZt1JuGMZPqZgpGk80tlOA=';
-const JWT_EXPIRE = '24h';
 
-
-// Middleware: Auth
+// Authentication Middleware 
 
 const authMiddleware = (req, res, next) => {
   try {
@@ -64,7 +80,9 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// Routes: Root
+
+// ROUTES: ROOT
+
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -83,12 +101,12 @@ app.get('/', (req, res) => {
         delete: 'DELETE /api/todos/:id'
       }
     },
-    documentation: 'https://github.com/yourusername/todo-api-backend'
+    documentation: '/api-docs'
   });
 });
 
 
-// Routes: Authentication
+// ROUTES: AUTHENTICATION
 
 // Register
 app.post(
@@ -121,8 +139,13 @@ app.post(
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
+      // Fixed: Use Math.max to prevent duplicate IDs
+      const newId = users.length > 0 
+        ? Math.max(...users.map(u => u.id)) + 1 
+        : 1;
+
       const user = {
-        id: users.length + 1,
+        id: newId,
         username,
         email,
         password: hashedPassword,
@@ -150,10 +173,11 @@ app.post(
         }
       });
     } catch (error) {
+      console.error('Registration error:', error);
       res.status(500).json({
         success: false,
         message: 'Server error',
-        error: error.message
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
       });
     }
   }
@@ -213,17 +237,17 @@ app.post(
         }
       });
     } catch (error) {
+      console.error('Login error:', error);
       res.status(500).json({
         success: false,
         message: 'Server error',
-        error: error.message
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
       });
     }
   }
 );
 
-
-// Routes: Todos
+// ROUTES: TODOS
 
 // Get all todos
 app.get('/api/todos', authMiddleware, (req, res) => {
@@ -235,10 +259,11 @@ app.get('/api/todos', authMiddleware, (req, res) => {
       data: userTodos
     });
   } catch (error) {
+    console.error('Get todos error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -262,10 +287,11 @@ app.get('/api/todos/:id', authMiddleware, (req, res) => {
       data: todo
     });
   } catch (error) {
+    console.error('Get todo error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -291,8 +317,13 @@ app.post(
 
       const { title, description, completed } = req.body;
 
+      // Fixed: Use Math.max to prevent duplicate IDs
+      const newId = todos.length > 0 
+        ? Math.max(...todos.map(t => t.id)) + 1 
+        : 1;
+
       const todo = {
-        id: todos.length + 1,
+        id: newId,
         userId: req.user.id,
         title,
         description: description || '',
@@ -309,10 +340,11 @@ app.post(
         data: todo
       });
     } catch (error) {
+      console.error('Create todo error:', error);
       res.status(500).json({
         success: false,
         message: 'Server error',
-        error: error.message
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
       });
     }
   }
@@ -361,10 +393,11 @@ app.put(
         data: todos[todoIndex]
       });
     } catch (error) {
+      console.error('Update todo error:', error);
       res.status(500).json({
         success: false,
         message: 'Server error',
-        error: error.message
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
       });
     }
   }
@@ -391,18 +424,19 @@ app.delete('/api/todos/:id', authMiddleware, (req, res) => {
       message: 'Todo deleted successfully'
     });
   } catch (error) {
+    console.error('Delete todo error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
 
-// SwaggerAPI stuff
+// Swagger Api Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-  explorer: true,                   
-  customCss: '.swagger-ui .topbar { background-color: #1a1a2e; }', 
+  explorer: true,
+  customCss: '.swagger-ui .topbar { background-color: #1a1a2e; }',
   customSiteTitle: 'Todo API Docs',
 }));
 
@@ -410,6 +444,8 @@ app.get('/api-docs.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(specs);
 });
+
+// Error Handlers
 
 // 404 handler
 app.use((req, res) => {
@@ -419,23 +455,27 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Unhandled error:', err.stack);
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Internal Server Error'
+    message: process.env.NODE_ENV === 'development' 
+      ? err.message 
+      : 'Internal Server Error'
   });
 });
 
+
 // Export for Vercel
+
 module.exports = app;
 
-// local development
+// Local Development Server
 if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server running on http://localhost:${PORT}`);
     console.log(`   Also try: http://127.0.0.1:${PORT}`);
+    console.log(`   API Docs: http://localhost:${PORT}/api-docs`);
   });
 }
