@@ -82,7 +82,8 @@ columnHelper.accessor('price', {
     cell: info => {
       const stock = info.getValue()
       return (
-        <span className={`font-medium ${stock < 50 ? 'text-red-600' : 'text-green-600'}`}>
+        // If stock is less than 50, red text, else green
+        <span className={`font-medium ${stock < 50 ? 'text-red-600' : 'text-green-600'}`}> 
           {stock}
         </span>
       )
