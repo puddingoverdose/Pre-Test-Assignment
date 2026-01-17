@@ -17,7 +17,7 @@ const options = {
         description: 'Development server',
       },
       { 
-        url: 'https://pre-test-assignment-backend.vercel.app',
+        url: 'https://pre-test-assignment-lefz.vercel.app',
         description: 'Production server' 
       } 
     ],

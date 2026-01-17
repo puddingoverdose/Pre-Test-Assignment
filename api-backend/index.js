@@ -12,7 +12,8 @@ const specs = require('./swagger');   // or './swagger.js' depending on location
 // Middleware
 app.use(cors({
   origin: [
-    'https://pre-test-assignment.vercel.app',
+    // 'https://pre-test-assignment.vercel.app',  // frontend URL
+    'https://pre-test-assignment-lefz.vercel.app', // backend URL for Swagger
     'http://localhost:5173',
     'http://localhost:3000'
   ],
