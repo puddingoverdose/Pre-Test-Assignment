@@ -15,7 +15,7 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local development server
-  - url: https://your-project-name.vercel.app
+  - url: https://pre-test-assignment-lefz.vercel.app/
     description: Production server (Vercel)
 
 components:
