@@ -1,9 +1,8 @@
-
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const options = {
   definition: {
-    openapi: '3.0.0',                    // Current stable version (3.1 exists but 3.0 is still the safest choice)
+    openapi: '3.0.0',
     info: {
       title: 'Todo List API',
       version: '1.0.0',
@@ -14,10 +13,13 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',   // change to your production URL later
+        url: 'http://localhost:3000',
         description: 'Development server',
       },
-      { url: 'https://vercel.com/ridho-mulias-projects/pre-test-assignment', description: 'Production' } 
+      { 
+        url: 'https://pre-test-assignment-backend.vercel.app',
+        description: 'Production server' 
+      } 
     ],
     components: {
       securitySchemes: {
@@ -25,13 +27,17 @@ const options = {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'JWT Authorization header using the Bearer scheme.',
+          description: 'JWT Authorization header using the Bearer scheme. Example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
         },
       },
     },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
-  apis: ['./index.js'],   
-
+  apis: ['./index.js'],
 };
 
 const specs = swaggerJsdoc(options);
