@@ -69,12 +69,11 @@ const columns: ColumnDef<Product, any>[] = [
 columnHelper.accessor('price', {
   header: 'Price',
   cell: info => {
-    const priceInRupiah = info.getValue() * 15000; // $1 ≈ Rp 15,000
-    return new Intl.NumberFormat('id-ID', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(priceInRupiah);
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    }).format(info.getValue());
   },
   size: 120,
 }),
