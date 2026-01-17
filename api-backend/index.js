@@ -12,16 +12,14 @@ const specs = require('./swagger');   // or './swagger.js' depending on location
 // Middleware
 app.use(cors({
   origin: [
-    // 'https://pre-test-assignment.vercel.app',  // frontend URL
-    'https://pre-test-assignment-lefz.vercel.app', // backend URL for Swagger
+    'http://localhost:3000',
     'http://localhost:5173',
-    'http://localhost:3000'
+    'https://pre-test-assignment-lefz.vercel.app', // Allow Swagger UI to work
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 
 app.use(express.json());
 
